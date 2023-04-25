@@ -7,6 +7,7 @@ import store from '@/store/store'
 import lodash from 'lodash'
 
 import OrsApiClient from 'openrouteservice-js'
+import axios from 'axios'
 
 // By default we use the openrouteservice-js npm package to query the API.
 // But, if it is needed to test and change the openrouteservice-js itself the lib source code
@@ -23,29 +24,30 @@ import OrsApiClient from 'openrouteservice-js'
  * @returns {Promise}
  */
 const Directions = (places, customArgs = null) => {
-  const mapSettings = store.getters.mapSettings
 
-  // Build the ors client object
-  const directions = new OrsApiClient.Directions({
-    api_key: mapSettings.apiKey,
-    host: 'https://lazarillo.app/internal/maps/ors',
-    service: mapSettings.endpoints.directions
-  })
-
+  const host = 'https://lazarillo.app/internal/maps/ors'
+  const config = {
+    headers:{
+      'Access-Control-Allow-Origin': '*'
+    }
+  };
   return new Promise((resolve, reject) => {
     OrsParamsParser.buildRoutingArgs(places).then(args => {
       if (customArgs) {
         args = Object.assign(args, customArgs)
       }
+      delete args.timeout
       console.log(args)
-      directions.calculate(args).then(response => {
-        const data = { options: { origin: constants.dataOrigins.directions, apiVersion: constants.apiVersion }, content: response }
-        console.log(data)
-        resolve(data)
-      }).catch(err => {
-        const result = { response: err, args: args }
-        reject(result)
-      })
+      axios.post(`${host}/v2/directions/foot-walking/geojson`, args, config)
+        .then((response) => {
+          const data = { options: { origin: constants.dataOrigins.directions, apiVersion: constants.apiVersion }, content: response }
+          console.log(data)
+          resolve(data)
+        })
+        .catch((err) => {
+          const result = { response: err, args: args }
+          reject(result)
+        })
     })
   })
 }
