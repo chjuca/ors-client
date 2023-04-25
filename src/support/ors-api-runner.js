@@ -28,7 +28,7 @@ const Directions = (places, customArgs = null) => {
   // Build the ors client object
   const directions = new OrsApiClient.Directions({
     api_key: mapSettings.apiKey,
-    host: mapSettings.apiBaseUrl,
+    host: 'https://lazarillo.app/internal/maps/ors',
     service: mapSettings.endpoints.directions
   })
 
@@ -37,8 +37,10 @@ const Directions = (places, customArgs = null) => {
       if (customArgs) {
         args = Object.assign(args, customArgs)
       }
+      console.log(args)
       directions.calculate(args).then(response => {
         const data = { options: { origin: constants.dataOrigins.directions, apiVersion: constants.apiVersion }, content: response }
+        console.log(data)
         resolve(data)
       }).catch(err => {
         const result = { response: err, args: args }
@@ -58,7 +60,7 @@ const Geocode = (term, size = 10) => {
   const mapSettings = store.getters.mapSettings
   const client = new OrsApiClient.Geocode({
     api_key: mapSettings.apiKey,
-    host: mapSettings.apiBaseUrl,
+    host: 'https://api.openrouteservice.org/',
     service: mapSettings.endpoints.geocodeSearch
   })
   const args = OrsParamsParser.buildPlaceSearchArgs(term)
@@ -85,7 +87,7 @@ const ReverseGeocode = (lat, lng, size = 10) => {
 
   const client = new OrsApiClient.Geocode({
     api_key: mapSettings.apiKey,
-    host: mapSettings.apiBaseUrl,
+    host: 'https://api.openrouteservice.org/',
     service: mapSettings.endpoints.reverseGeocode
   })
   const args = OrsParamsParser.buildReverseSearchArgs(lat, lng)

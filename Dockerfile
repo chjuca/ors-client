@@ -23,10 +23,10 @@ RUN pnpm build
 # 2. Stage: Start server with needed files only
 FROM nginx:stable-alpine as production-stage
 
-RUN apk add --no-cache 'openssl=~1.1' 'bash=~5.1'  \
+RUN apk add --no-cache 'openssl=3.0.8-r4' 'bash=5.2.15-r0' \
     && rm -rf /usr/share/nginx/html/*
 
-USER nginx
+USER root
 
 COPY --from=build-stage /opt/client/static /usr/share/nginx/html/static
 COPY --from=build-stage /opt/client/index.html /usr/share/nginx/html/
